@@ -22,14 +22,14 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={montserrat.className}>
-        <Web3Modal>
-          <Providers>
-            <Navbar />
+        <Providers>
+          <Navbar />
+          <Web3Modal>
             <w3m-button />
             {children}
-            <Footer />
-          </Providers>
-        </Web3Modal>
+          </Web3Modal>
+          <Footer />
+        </Providers>
         {/* Footer shouldn't be on all pages, but I put it here for testing purposes */}
 	  </body>
     </html>
