@@ -256,3 +256,8 @@
 	background: rgba(97, 221, 65, 0.00);
 	border-color: #C9C9C9;
 }
+.button_yellow {
+	color: #966C00;
+	background: #FFC52F;
+	border-color: #E7A600;
+}

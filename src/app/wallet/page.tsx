@@ -4,6 +4,8 @@ import styles from "./page.module.css";
 import { ReactNode, useState } from 'react'; 
 import { useSession } from 'next-auth/react';
 import { useEffect } from "react";
+import { modalHandler } from "@/components/Modal/BaseModal";
+import ExchangeModal from "./modals/ExchangeModal";
 
 const defaultBalance = {
     points: 10000,
@@ -389,6 +391,8 @@ function BalanceSection({ balance }: { balance: typeof defaultBalance }) {
     const [isVisible, setVisible] = useState(false);
     const censor = "********";
 
+    const exchangeModal = useState(false);
+
     return (
         <HeaderSection className={styles.balance_subsection} header="My Balance" 
             afterHeader={(<img onClick={() => setVisible(!isVisible)} className={`${styles.button} ${styles.balance_toggle}`} src="/icons/eyes.svg" alt="Eye Toggle" />)}
@@ -396,7 +400,8 @@ function BalanceSection({ balance }: { balance: typeof defaultBalance }) {
             <div className={`${styles.points_container} ${styles.content_block} ${styles.block_dark}`}>
                 <IconTextWrapper className={styles.rp_title} src="/icons/gift.svg" alt="Reward Points Icon" text="Reward Points" />
                 <div className={styles.rp_points}>{isVisible ? balance.points : censor}</div>
-                <IconTextButton onClick={() => console.log("Clicked")} className={styles.points_add} src="/icons/plus.svg" alt="Add Points Icon" text="Add Points" />
+                <IconTextButton onClick={modalHandler(exchangeModal)} className={styles.points_add} src="/icons/plus.svg" alt="Add Points Icon" text="Add Points" />
+                <ExchangeModal state={exchangeModal} />
             </div>
             <div className={`${styles.token_container} ${styles.content_block} ${styles.block_light}`}>
                 <IconTextWrapper className={styles.token_title} src="/icons/token.svg" alt="Token Icon" text="Token" />
