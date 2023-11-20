@@ -379,7 +379,7 @@ function IconTextWrapper({ className="", src, alt, text="" }: IconProps) {
     );
 }
 
-function IconTextButton({ className="", src, alt, text, onClick }: IconProps & { onClick: () => void }) {
+function IconTextButton({ className="", src, alt, text, onClick }: IconProps & { onClick: (args: any) => void }) {
     return (
         <div onClick={onClick}>
             <IconTextWrapper className={`${className} ${styles.button}`} src={src} alt={alt} text={text} />
