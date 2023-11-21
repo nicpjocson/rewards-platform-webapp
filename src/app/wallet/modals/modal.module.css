@@ -1,7 +1,84 @@
-.input_label {
-
+/* General utility classes */
+.text_main {
+    font-size: 20px;
+    font-style: normal;
+    font-weight: 700;
+    line-height: normal;
 }
 
-.token_symbol {
-    
+.text_info {
+    color: #6C6C6C;
+    font-size: 16px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: normal;
+}
+
+/* Specific classes */
+.input_title {
+    color: #C3C3C3;
+    text-align: center;
+}
+
+/* Input box */
+.input_box {
+    display: flex;
+    border-radius: 5px;
+    border: 3px solid #F4F4F4;
+    margin-top: 0.5rem;
+    margin-bottom: 0.5rem;
+    width: 450px;
+}
+.input_box > .input_label {
+    flex: 3 0 0;
+}
+.input_box > .input {
+    flex: 8 1 0;
+}
+.input_box > .input_converted {
+    flex: 3 0 0;
+}
+
+/* Input box components */
+.input_box > * {
+    padding: 5px;
+}
+
+.input_label.token {
+    background: #FFC52F;
+    color: #966C00;
+}
+.input_label.points {
+    background: #C3C3C3;
+    color: #686868;
+}
+
+.input {
+    /* This part overrides the .input defined in components/CardPage/card.module.css */
+    min-height: 0;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+
+    border-left: 3px solid #F4F4F4;
+    padding-left: 0.75rem;
+}
+.input:focus {
+    outline: none;
+}
+
+.input_converted {
+    display: flex; 
+    align-items: center;
+}
+
+/* Gas fee */
+.gas_fee_row {
+    display: flex;
+}
+.gas_fee_label {
+    flex: 4 1 0;
+}
+.gas_fee_value {
+    flex: 6 1 0;
 }
