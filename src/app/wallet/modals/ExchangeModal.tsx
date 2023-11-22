@@ -69,7 +69,7 @@ const ExchangeInput = ({
     labelClassName,
     convertedValue,
     ...props
-}: {
+}: { /* TODO: make interface? */
     id: string,
     title: string
     label: string,
