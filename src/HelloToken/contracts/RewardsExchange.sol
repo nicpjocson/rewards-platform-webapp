@@ -1,12 +1,19 @@
 // SPDX-License-Identifier: MIT
+/*
+
+    Notes
+    - this contract has its own inventory of Hello Tokens
+    - if owner wants to exchange tokens to points they have to approve() this address with the amount they want to exchange
+
+*/
 pragma solidity ^0.8.0;
 
 import "./HelloToken.sol";
 
 contract RewardsExchange {
-    mapping(address => uint256) private _rewards;
     address public owner;
     HelloToken public customToken;
+    uint256 public tokens;
 
     event TokensExchanged(address indexed user, uint256 amount);
 
@@ -29,13 +36,18 @@ contract RewardsExchange {
             "Token transfer failed"
         );
 
-        //assuming token to reward points is 1:1
-        _rewards[msg.sender] = amount;
-
         emit TokensExchanged(msg.sender, amount);
+        tokens += amount;
     }
 
-    function rewards() public view virtual returns (uint256) {
-        return _rewards[msg.sender];
+    //transfers the tokens stored in the contract to owner wallet
+    function withdrawTokens() external onlyOwner {
+        require(customToken.transfer(owner, tokens), "Token withdrawal failed");
+        tokens = 0;
+    }
+
+    //transfers ownership of contract to another address
+    function setOwner(address _newOwnerAddress) external onlyOwner {
+        owner = _newOwnerAddress;
     }
 }
