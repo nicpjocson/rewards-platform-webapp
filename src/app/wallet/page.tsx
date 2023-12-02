@@ -4,8 +4,13 @@ import styles from "./page.module.css";
 import { ReactNode, useState } from 'react'; 
 import { useSession } from 'next-auth/react';
 import { useEffect } from "react";
+import { useWeb3Modal } from '@web3modal/wagmi/react'
+import { useAccount, useBalance } from 'wagmi';
 
-const defaultBalance = {
+const defaultBalance: {
+    points: number,
+    token: number | string
+} = {
     points: 10000,
     token: 25.1234 
 }
@@ -386,8 +391,15 @@ function IconTextButton({ className="", src, alt, text, onClick }: IconProps & {
 }
 
 function BalanceSection({ balance }: { balance: typeof defaultBalance }) {
+    const { address, isConnected } = useAccount();
+    const { data, isError, isLoading } = useBalance({ address })
     const [isVisible, setVisible] = useState(false);
     const censor = "********";
+
+    if (isLoading) balance.token = "Fetching balance..."
+    else if (isError) balance.token = "Error getting balance"
+    else if (!isConnected) balance.token = "No Wallet Connected"
+    else balance.token = `${data?.formatted} ${data?.symbol}`
 
     return (
         <HeaderSection className={styles.balance_subsection} header="My Balance" 
@@ -443,12 +455,30 @@ function ProfileSection({ profile }: { profile: Profile }) {
                 {/* <HeaderSection>div className={`${styles.profile_cog_container} ${styles.button} ${styles.profile_edit}`}><img src="/icons/gear.svg" alt="Edit Profile"/></div> */}
                 <IconTextButton onClick={() => console.log("Clicked")} className={`${styles.profile_edit} ${styles.profile_cog_container}`} src="/icons/gear.svg" alt="Edit Profile" text="" />
             </div>
-            <div className={`${styles.wallet_container} ${styles.content_block} ${styles.block_light}`}>
-                <IconTextWrapper className={styles.wallet_title} src="/icons/WalletConnect-Logo1.svg" alt="Wallet Connect Logo" text="Wallet" />
-                <div className={styles.wallet_status}>No Wallet Connected</div>
-                <IconTextButton onClick={() => console.log("Clicked")} className={styles.wallet_connect} src="/icons/link.svg" alt="Link Icon" text="Connect Wallet" />
-            </div>
+            <WalletContainer />
         </HeaderSection>
+    );
+}
+
+function WalletContainer({ }) {
+    const { open } = useWeb3Modal();
+    const { address, isConnected } = useAccount();
+    
+    return (
+        <div className={`${styles.wallet_container} ${styles.content_block} ${styles.block_light}`}>
+            <IconTextWrapper className={styles.wallet_title} src="/icons/WalletConnect-Logo1.svg" alt="Wallet Connect Logo" text="Wallet" />
+            {isConnected ? (
+                <>
+                    <div className={styles.wallet_status}>{address}</div>
+                    <IconTextButton onClick={() => open({ view: 'Account'})} className={styles.wallet_connect} src="/icons/link.svg" alt="Link Icon" text="Open Account" />
+                </>
+            ) : (
+                <>
+                    <div className={styles.wallet_status}>No Wallet Connected</div>
+                    <IconTextButton onClick={open} className={styles.wallet_connect} src="/icons/link.svg" alt="Link Icon" text="Connect Wallet" />
+                </>
+            )}
+        </div>
     );
 }
 
@@ -502,24 +532,26 @@ function TransactionsSection({ transactions }: { transactions: Transaction[] }) 
             </div>
             <div className={styles.transactions_table_container}>
                 <table className={styles.transactions_table}>
-                    <tr className={styles.transactions_row_dark}>
-                        <th className={styles.transactions_date}>Date</th>
-                        <th className={styles.transactions_type}>Type</th>
-                        <th className={styles.transactions_items}>Items</th>
-                        <th className={styles.transactions_total}>Total</th>
-                        <th className={styles.transactions_balance}>Points Balance</th>
-                    </tr>
-                    {transactions2D[page]?.map((transaction, index) => {
-                        return (
-                            <tr className={index % 2 == 0 ? styles.transactions_row_light : styles.transactions_row_dark} key={index}>
-                                <td>{transaction.date}</td>
-                                <td>{transaction.type}</td>
-                                <td>{transaction.items}</td>
-                                <td className={transactionTotalColor(transaction.total)}>{transaction.total}</td>
-                                <td className={styles.transactions_balance}>{transaction.pointsBalance}</td>
-                            </tr>
-                        );
-                    })}
+                    <tbody>
+                      <tr className={styles.transactions_row_dark}>
+                          <th className={styles.transactions_date}>Date</th>
+                          <th className={styles.transactions_type}>Type</th>
+                          <th className={styles.transactions_items}>Items</th>
+                          <th className={styles.transactions_total}>Total</th>
+                          <th className={styles.transactions_balance}>Points Balance</th>
+                      </tr>
+                      {transactions2D[page]?.map((transaction, index) => {
+                          return (
+                              <tr className={index % 2 == 0 ? styles.transactions_row_light : styles.transactions_row_dark} key={index}>
+                                  <td>{transaction.date}</td>
+                                  <td>{transaction.type}</td>
+                                  <td>{transaction.items}</td>
+                                  <td className={transactionTotalColor(transaction.total)}>{transaction.total}</td>
+                                  <td className={styles.transactions_balance}>{transaction.pointsBalance}</td>
+                              </tr>
+                          );
+                      })}
+                    </tbody>
                 </table>
             </div>
         </HeaderSection>
