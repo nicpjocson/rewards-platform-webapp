@@ -20,7 +20,13 @@ const chains = [mainnet, arbitrum]
 const wagmiConfig = defaultWagmiConfig({ chains, projectId, metadata })
 
 // 3. Create modal
-createWeb3Modal({ wagmiConfig, projectId, chains })
+createWeb3Modal({ wagmiConfig, projectId, chains,
+  tokens: {
+    97: {
+      address: "0xb2bE0F7CC870deEa96eBD115bC8CF81D64bEd9D2"
+    }
+  }
+})
 
 export function Web3Modal({ children }: { children: React.ReactNode }) {
   return <WagmiConfig config={wagmiConfig}>{children}</WagmiConfig>;

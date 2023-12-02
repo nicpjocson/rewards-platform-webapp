@@ -392,7 +392,7 @@ function IconTextButton({ className="", src, alt, text, onClick }: IconProps & {
 
 function BalanceSection({ balance }: { balance: typeof defaultBalance }) {
     const { address, isConnected } = useAccount();
-    const { data, isError, isLoading } = useBalance({ address })
+    const { data, isError, isLoading } = useBalance({ address: "0xb2bE0F7CC870deEa96eBD115bC8CF81D64bEd9D2" })
     const [isVisible, setVisible] = useState(false);
     const censor = "********";
 
@@ -402,6 +402,7 @@ function BalanceSection({ balance }: { balance: typeof defaultBalance }) {
     else if (isError) balance.token = "Error getting balance"
     else if (!isConnected) balance.token = "No Wallet Connected"
     else {
+        console.log(data);
         balance.token = `${data?.formatted} ${data?.symbol}`
         tokenClass = styles.token_points;
     }
