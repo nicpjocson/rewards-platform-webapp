@@ -7,6 +7,9 @@ import React, { useState, useRef, useEffect } from "react";
 import { signOut, useSession } from "next-auth/react";
 import { User } from "@/lib/types/User";
 import { UserRole } from "@prisma/client";
+import { useWeb3Modal } from '@web3modal/wagmi/react';
+import { useAccount } from 'wagmi';
+
 
 let defaultUser: any = {
     name: "BrOdin",
@@ -30,7 +33,7 @@ export default function Navbar() {
             </NavLink>
             {/* Everything below uses float: right, so reversed order */}
             <ProfileComponent user={user} />
-            <WalletConnectBox isConnected={Boolean(user?.walletConnected) || false} />
+            <WalletConnectBox user={user} />
             <NavLink href="/cart"><img src="/cart.svg" alt=""/></NavLink> {/* fix alt */}
             <NavLink href="/shops"><h3>Shop</h3></NavLink>
             <NavLink href="/wallet"><h3>Wallet</h3></NavLink>
@@ -56,12 +59,15 @@ const NavLink: React.FC<{
     );
 }
 
-function WalletConnectBox({ isConnected = false }) { //TODO: fix types
+function WalletConnectBox({ user }: { user: User | undefined }) { //TODO: fix types
+    const { open } = useWeb3Modal();
+    const { address, isConnecting, isDisconnected } = useAccount();
+
     let connect_style = null;
     let connect_text = null;
     let connect_src = null;
 
-    if (isConnected) {
+    if (!isDisconnected && !isConnecting) {
         connect_style = styles.connected;
         connect_text = "Connected";
         connect_src = "/wallet_connected.svg"
@@ -72,7 +78,7 @@ function WalletConnectBox({ isConnected = false }) { //TODO: fix types
     }
 
     return (
-        <NavLink href="/wallet/connect" className={`${styles.navlink} ${styles.connect_container}`} enableHighlight={false}>
+        <div onClick={() => open()} className={`${styles.navlink} ${styles.connect_container}`}>
             <div className={`${styles.connect} ${connect_style}`}>
                 {connect_text}
                 {/* TODO: there is a few pixels gap between the img and the border, fix 
@@ -80,7 +86,7 @@ function WalletConnectBox({ isConnected = false }) { //TODO: fix types
 				*/}
                 <img className={styles.connect_icon} src={connect_src} alt=""/>
             </div>
-        </NavLink>
+        </div>
     );
 }
 

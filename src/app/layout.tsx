@@ -28,8 +28,8 @@ export default async function RootLayout({
       <body className={montserrat.className}>
         <Web3Modal>
           <Providers session={session}>
-            <Navbar />
             <w3m-button />
+            <Navbar />
             {children}
             <Footer />
           </Providers>
