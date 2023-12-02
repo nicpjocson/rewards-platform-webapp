@@ -1,0 +1,41 @@
+"use client";
+import styles from "./Navbar.module.css";
+import React, { useState, useRef, useEffect } from "react";
+import { User } from "@/lib/types/User";
+import { useWeb3Modal } from '@web3modal/wagmi/react'
+import { useAccount } from 'wagmi';
+
+export default function WalletConnectBox({ user }: { user: User | undefined }) { //TODO: fix types
+    const { open } = useWeb3Modal();
+    const { address, isConnecting, isConnected } = useAccount();
+    
+    let connect_style = styles.not_connected;
+    let connect_text = "Not Connected";
+    let connect_src = "/wallet_notconnected.svg"
+
+    if (isConnected) {
+        console.log("Connected! Address:");
+        console.log(address);
+        connect_style = styles.connected;
+        connect_text = "Connected";
+        connect_src = "/wallet_connected.svg"
+    } 
+
+    useEffect(() => {
+        // TODO: change database value of wallet address
+        console.log("isConnected changed value");
+        console.log(isConnected);
+    }, [isConnected]);
+    
+    return (
+        <div onClick={() => open()} className={`${styles.navlink} ${styles.connect_container}`}>
+            <div className={`${styles.connect} ${connect_style}`}>
+                {connect_text}
+                {/* TODO: there is a few pixels gap between the img and the border, fix 
+				also fix alt
+				*/}
+                <img className={styles.connect_icon} src={connect_src} alt=""/>
+            </div>
+        </div>
+    );
+}

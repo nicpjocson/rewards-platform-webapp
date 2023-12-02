@@ -7,8 +7,7 @@ import React, { useState, useRef, useEffect } from "react";
 import { signOut, useSession } from "next-auth/react";
 import { User } from "@/lib/types/User";
 import { UserRole } from "@prisma/client";
-import { useWeb3Modal } from '@web3modal/wagmi/react';
-import { useAccount } from 'wagmi';
+import dynamic from 'next/dynamic'
 
 
 let defaultUser: any = {
@@ -59,36 +58,11 @@ const NavLink: React.FC<{
     );
 }
 
-function WalletConnectBox({ user }: { user: User | undefined }) { //TODO: fix types
-    const { open } = useWeb3Modal();
-    const { address, isConnecting, isDisconnected } = useAccount();
+const WalletConnectBox = dynamic(
+    () => import('@/components/Navbar/WalletConnectBox'),
+    { ssr: false }
+)
 
-    let connect_style = null;
-    let connect_text = null;
-    let connect_src = null;
-
-    if (!isDisconnected && !isConnecting) {
-        connect_style = styles.connected;
-        connect_text = "Connected";
-        connect_src = "/wallet_connected.svg"
-    } else {
-        connect_style = styles.not_connected;
-        connect_text = "Not Connected";
-        connect_src = "/wallet_notconnected.svg"
-    }
-
-    return (
-        <div onClick={() => open()} className={`${styles.navlink} ${styles.connect_container}`}>
-            <div className={`${styles.connect} ${connect_style}`}>
-                {connect_text}
-                {/* TODO: there is a few pixels gap between the img and the border, fix 
-				also fix alt
-				*/}
-                <img className={styles.connect_icon} src={connect_src} alt=""/>
-            </div>
-        </div>
-    );
-}
 
 const NavDropdown: React.FC<{
 	children: React.ReactNode,
