@@ -188,15 +188,15 @@
     border-collapse: collapse;
 }
 
-.transactions_table > tr > th {
+.transactions_table > tbody > tr > th {
     text-align: left;
     background-color: #222222;
     font-size: 1.3rem;
     line-height: 2.1rem;
 }
 
-.transactions_table > tr > th,
-.transactions_table > tr > td {
+.transactions_table > tbody > tr > th,
+.transactions_table > tbody > tr > td {
     padding: 0.4rem 2rem;
 }
 
