@@ -396,10 +396,15 @@ function BalanceSection({ balance }: { balance: typeof defaultBalance }) {
     const [isVisible, setVisible] = useState(false);
     const censor = "********";
 
+    let tokenClass = `${styles.token_points} ${styles.shrink_text}`;
+
     if (isLoading) balance.token = "Fetching balance..."
     else if (isError) balance.token = "Error getting balance"
     else if (!isConnected) balance.token = "No Wallet Connected"
-    else balance.token = `${data?.formatted} ${data?.symbol}`
+    else {
+        balance.token = `${data?.formatted} ${data?.symbol}`
+        tokenClass = styles.token_points;
+    }
 
     return (
         <HeaderSection className={styles.balance_subsection} header="My Balance" 
@@ -412,7 +417,7 @@ function BalanceSection({ balance }: { balance: typeof defaultBalance }) {
             </div>
             <div className={`${styles.token_container} ${styles.content_block} ${styles.block_light}`}>
                 <IconTextWrapper className={styles.token_title} src="/icons/token.svg" alt="Token Icon" text="Token" />
-                <div className={styles.token_points}>{isVisible ? balance.token : censor}</div>
+                <div className={tokenClass}>{isVisible ? balance.token : censor}</div>
             </div>        
         </HeaderSection>
     );
@@ -469,7 +474,7 @@ function WalletContainer({ }) {
             <IconTextWrapper className={styles.wallet_title} src="/icons/WalletConnect-Logo1.svg" alt="Wallet Connect Logo" text="Wallet" />
             {isConnected ? (
                 <>
-                    <div className={styles.wallet_status}>{address}</div>
+                    <div className={`${styles.wallet_status} ${styles.shrink_text}`}>{address}</div>
                     <IconTextButton onClick={() => open({ view: 'Account'})} className={styles.wallet_connect} src="/icons/link.svg" alt="Link Icon" text="Open Account" />
                 </>
             ) : (
