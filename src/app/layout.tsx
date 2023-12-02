@@ -7,6 +7,7 @@ import Footer from '@/components/Footer/Footer';
 import 'react-toastify/dist/ReactToastify.css';
 import { getServerSession } from "next-auth/next"
 import { authOptions } from "@/app/api/auth/[...nextauth]/route"
+import { Web3Modal } from "../context/Web3Modal";
 
 const montserrat = Montserrat({ subsets: ['latin'] })
 
@@ -25,11 +26,14 @@ export default async function RootLayout({
   return (
     <html lang="en">
       <body className={montserrat.className}>
-		<Providers session={session}>
-          <Navbar />
-		  {children}
-          <Footer />
-		</Providers>
+        <Web3Modal>
+          <Providers session={session}>
+            <Navbar />
+            <w3m-button />
+            {children}
+            <Footer />
+          </Providers>
+        </Web3Modal>
         {/* Footer shouldn't be on all pages, but I put it here for testing purposes */}
 	  </body>
     </html>
