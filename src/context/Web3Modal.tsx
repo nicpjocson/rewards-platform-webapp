@@ -6,7 +6,7 @@ import { WagmiConfig } from 'wagmi'
 import { arbitrum, mainnet } from 'viem/chains'
 
 // 1. Get projectId at https://cloud.walletconnect.com
-const projectId = 'YOUR_PROJECT_ID'
+const projectId = 'ebd81ab3981156d6b63a120ff84d8cbc'
 
 // 2. Create wagmiConfig
 const metadata = {
@@ -22,6 +22,6 @@ const wagmiConfig = defaultWagmiConfig({ chains, projectId, metadata })
 // 3. Create modal
 createWeb3Modal({ wagmiConfig, projectId, chains })
 
-export function Web3Modal({ children }) {
+export function Web3Modal({ children }: { children: React.ReactNode }) {
   return <WagmiConfig config={wagmiConfig}>{children}</WagmiConfig>;
 }
