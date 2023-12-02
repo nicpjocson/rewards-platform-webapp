@@ -5,7 +5,7 @@ import { ReactNode, useState } from 'react';
 import { useSession } from 'next-auth/react';
 import { useEffect } from "react";
 import { useWeb3Modal } from '@web3modal/wagmi/react'
-import { useAccount, useBalance } from 'wagmi';
+import { useAccount, useBalance, useContractRead } from 'wagmi';
 
 const defaultBalance: {
     points: number,
@@ -390,9 +390,35 @@ function IconTextButton({ className="", src, alt, text, onClick }: IconProps & {
     );
 }
 
+// const { getBalance } = require('wagmi');
+
+// async function getBEP20Balance() {
+//   // Replace with the BSC address of the BEP-20 token
+//   const tokenAddress = '0xb2bE0F7CC870deEa96eBD115bC8CF81D64bEd9D2';
+
+//   // Replace with the BSC address for which you want to check the balance
+//   const userAddress = '0xA361046B2bBEe6C9dCAFd265A579A0cBbdC65803';
+
+//   try {
+//     const balance = await getBalance(tokenAddress, userAddress);
+//     console.log(`Balance of ${userAddress} in ${tokenAddress}: ${balance} tokens`);
+//     return balance;
+//   } catch (error) {
+//     console.error('Error:', error.message);
+//     return 0;
+//   }
+// }
+
 function BalanceSection({ balance }: { balance: typeof defaultBalance }) {
     const { address, isConnected } = useAccount();
-    const { data, isError, isLoading } = useBalance({ address: "0xb2bE0F7CC870deEa96eBD115bC8CF81D64bEd9D2" })
+    const { data, isError, isLoading } = useBalance({ 
+      address,
+      token: "0xb2bE0F7CC870deEa96eBD115bC8CF81D64bEd9D2"
+    })
+    // const { data, isError, isLoading } = useContractRead({
+
+    // });
+
     const [isVisible, setVisible] = useState(false);
     const censor = "********";
 
@@ -406,6 +432,7 @@ function BalanceSection({ balance }: { balance: typeof defaultBalance }) {
         balance.token = `${data?.formatted} ${data?.symbol}`
         tokenClass = styles.token_points;
     }
+    // balance.token = await getBEP20Balance();
 
     return (
         <HeaderSection className={styles.balance_subsection} header="My Balance" 
