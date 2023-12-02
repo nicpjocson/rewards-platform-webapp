@@ -7,24 +7,39 @@ import {
 } from "@/components/CardPage/CardPage";
 import styles from "./modal.module.css";
 import BaseModal, { BaseModalProps } from "@/components/Modal/BaseModal";
-import { useForm } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form";
 import { FormContainer, useFormError } from "@/components/Providers/Forms";
 import Image from "next/image";
+import { useState } from "react";
 
 const ExchangeModal: React.FC<BaseModalProps> = ({ 
     state 
 }) => {
-    const close = () => state[1](false);
-    
+    const [points, setPoints] = useState('');
+    const handleChangePoints = (e: any) => {
+        // TODO: handle non-integer input
+        setPoints(e.target.value);
+    }
+    const handleChangeToken = (e: any) => {
+        // TODO: convert token to points
+        setPoints(e.target.value);
+    }
+
     const form = useForm();
 	const toast = useFormError(form);
+    
+    const close = () => {
+        state[1](false);
+        setPoints('');
+    }
+    
 	const handleSubmit = form.handleSubmit((data) => {
         console.log('Exchanged');
         console.log(data);
+        console.log(points);
 		close();
 		form.reset();
 	});
-    form.watch();
 
     return (
         <BaseModal state={state}>
@@ -37,10 +52,10 @@ const ExchangeModal: React.FC<BaseModalProps> = ({
                         <Image src="/icons/gift.svg" width={122} height={122} alt="Reward Points" />
                     </CardRow>
                     <div>
-                        <ExchangeInput id="token" title="YOU PAY" label="Token" labelClassName={styles.token} convertedValue={1000} />
+                        <ExchangeInput id="token" title="YOU PAY" label="Token" labelClassName={styles.token} convertedValue={1000} value={points} onChange={handleChangeToken} />
                         <div className={styles.text_info}>Available: P{123456.78}</div>
                         <br />
-                        <ExchangeInput id="points" title="YOU RECEIVE" label="Points" labelClassName={styles.points} convertedValue={950} />
+                        <ExchangeInput id="points" title="YOU RECEIVE" label="Points" labelClassName={styles.points} convertedValue={950} value={points} onChange={handleChangePoints} />
                         <br /><br />
                         <div className={`${styles.gas_fee_row} ${styles.text_info}`}>
                             <div className={styles.gas_fee_label}>Estimated gas fee:</div> 
@@ -62,19 +77,23 @@ const ExchangeModal: React.FC<BaseModalProps> = ({
     );
 }
 
-const ExchangeInput = ({
+const ExchangeInput: React.FC<{
+    id: string,
+    title: string
+    label: string,
+    labelClassName: string
+    convertedValue: any,
+    value: any, /* TODO: fix type (int/float?) */
+    onChange: any
+}> = ({
     id,
     title,
     label,
     labelClassName,
     convertedValue,
+    value,
+    onChange,
     ...props
-}: { /* TODO: make interface? */
-    id: string,
-    title: string
-    label: string,
-    labelClassName: string
-    convertedValue: any /* TODO: fix type (int/float?) */
 }) => {
     return (
         <>
@@ -82,7 +101,19 @@ const ExchangeInput = ({
             <div className={styles.input_box}>
                 {/* Minor TODO: fix inner border radius */}
                 <label htmlFor={id} className={`${styles.input_label} ${styles.text_main} ${labelClassName}`}>{label}</label>
-                <Input id={id} placeholder="" className={`${styles.input} ${styles.text_main}`} autoComplete="off" {...props} /> 
+                <Controller 
+                    name={id}
+                    render={({ field }) => (
+                        <input
+                            id={id}
+                            placeholder=""
+                            className={`${styles.input} ${styles.text_main}`}
+                            autoComplete="off"
+                            onChange={onChange}
+                            value={value}
+                        />
+                    )}
+                />
                 <div className={`${styles.input_converted} ${styles.text_info}`}>= P{convertedValue}</div>
             </div>
         </>
