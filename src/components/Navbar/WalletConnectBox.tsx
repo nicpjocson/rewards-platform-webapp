@@ -7,7 +7,14 @@ import { useAccount } from 'wagmi';
 
 export default function WalletConnectBox({ user }: { user: User | undefined }) { //TODO: fix types
     const { open } = useWeb3Modal();
-    const { address, isConnecting, isConnected } = useAccount();
+    const { address, isConnecting, isConnected } = useAccount({
+        onConnect({ address, connector, isReconnected }) {
+            console.log('Connected', { address, connector, isReconnected })
+        },
+        onDisconnect() {
+            console.log('Disconnected')
+        },
+    });
     
     let connect_style = styles.not_connected;
     let connect_text = "Not Connected";
@@ -20,12 +27,6 @@ export default function WalletConnectBox({ user }: { user: User | undefined }) {
         connect_text = "Connected";
         connect_src = "/wallet_connected.svg"
     } 
-
-    useEffect(() => {
-        // TODO: change database value of wallet address
-        console.log("isConnected changed value");
-        console.log(isConnected);
-    }, [isConnected]);
     
     return (
         <div onClick={() => open()} className={`${styles.navlink} ${styles.connect_container}`}>
