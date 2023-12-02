@@ -8,6 +8,7 @@ import { signOut, useSession } from "next-auth/react";
 import { User } from "@/lib/types/User";
 import { UserRole } from "@prisma/client";
 import dynamic from 'next/dynamic'
+import { useDisconnect } from 'wagmi';
 
 
 let defaultUser: any = {
@@ -114,6 +115,8 @@ const NavDropdown: React.FC<{
 }
 
 function ProfileComponent({ user }: { user: User | undefined }) {
+    const { disconnect } = useDisconnect();
+
     return (
         <div className={`${styles.navlink} ${styles.profile_container_outer}`}> 
             {user ? (
@@ -124,7 +127,10 @@ function ProfileComponent({ user }: { user: User | undefined }) {
                 }} options={[
                     {href: "/inventorypage", label: "Inventory"},
                     {href: "/profile/edit", label: "Edit Profile"},
-                    {href: "/", label: "Logout", onClick: signOut}
+                    {href: "/", label: "Logout", onClick: () => {
+                        signOut()
+                        disconnect()
+                    }}
                 ]}>
                     <img className={styles.profile_icon} src="/profile.svg" alt=""/> {/* fix alt */}
                     <div className={styles.profile_info}>

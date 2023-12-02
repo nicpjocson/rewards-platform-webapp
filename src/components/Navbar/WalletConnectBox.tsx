@@ -1,5 +1,6 @@
 "use client";
 import styles from "./Navbar.module.css";
+import Link from "next/link";
 import React, { useState, useRef, useEffect } from "react";
 import { User } from "@/lib/types/User";
 import { useWeb3Modal } from '@web3modal/wagmi/react'
@@ -20,7 +21,7 @@ export default function WalletConnectBox({ user }: { user: User | undefined }) {
     let connect_text = "Not Connected";
     let connect_src = "/wallet_notconnected.svg"
 
-    if (isConnected) {
+    if (user && isConnected) {
         console.log("Connected! Address:");
         console.log(address);
         connect_style = styles.connected;
@@ -28,15 +29,23 @@ export default function WalletConnectBox({ user }: { user: User | undefined }) {
         connect_src = "/wallet_connected.svg"
     } 
     
-    return (
-        <div onClick={() => open()} className={`${styles.navlink} ${styles.connect_container}`}>
-            <div className={`${styles.connect} ${connect_style}`}>
-                {connect_text}
-                {/* TODO: there is a few pixels gap between the img and the border, fix 
-				also fix alt
-				*/}
-                <img className={styles.connect_icon} src={connect_src} alt=""/>
-            </div>
+    const content = (
+        <div className={`${styles.connect} ${connect_style}`}>
+            {connect_text}
+            {/* TODO: there is a few pixels gap between the img and the border, fix 
+            also fix alt
+            */}
+            <img className={styles.connect_icon} src={connect_src} alt=""/>
         </div>
+    )
+
+    return user ? (
+        <div onClick={() => open()} className={`${styles.navlink} ${styles.connect_container}`}>
+            {content}           
+        </div>
+    ) : (
+        <Link href="/profile/login" className={`${styles.navlink} ${styles.connect_container}`}>
+            {content}
+        </Link>
     );
 }
