@@ -4,8 +4,15 @@ import styles from "./page.module.css";
 import { ReactNode, useState } from 'react'; 
 import { useSession } from 'next-auth/react';
 import { useEffect } from "react";
+import { useWeb3Modal } from '@web3modal/wagmi/react'
+import { useAccount, useBalance, useContractRead, useContractWrite } from 'wagmi';
+import { modalHandler } from "@/components/Modal/BaseModal";
+import ExchangeModal from "./modals/ExchangeModal";
 
-const defaultBalance = {
+const defaultBalance: {
+    points: number,
+    token: number | string
+} = {
     points: 10000,
     token: 25.1234 
 }
@@ -377,7 +384,7 @@ function IconTextWrapper({ className="", src, alt, text="" }: IconProps) {
     );
 }
 
-function IconTextButton({ className="", src, alt, text, onClick }: IconProps & { onClick: () => void }) {
+function IconTextButton({ className="", src, alt, text, onClick }: IconProps & { onClick: (args: any) => void }) {
     return (
         <div onClick={onClick}>
             <IconTextWrapper className={`${className} ${styles.button}`} src={src} alt={alt} text={text} />
@@ -386,8 +393,27 @@ function IconTextButton({ className="", src, alt, text, onClick }: IconProps & {
 }
 
 function BalanceSection({ balance }: { balance: typeof defaultBalance }) {
+    const { address, isConnected } = useAccount();
+    const { data, isError, isLoading } = useBalance({ 
+      address,
+      token: "0xb2bE0F7CC870deEa96eBD115bC8CF81D64bEd9D2"
+    })
+
     const [isVisible, setVisible] = useState(false);
     const censor = "********";
+
+    const exchangeModal = useState(false);
+
+    let tokenClass = `${styles.token_points} ${styles.shrink_text}`;
+
+    if (isLoading) balance.token = "Fetching balance..."
+    else if (isError) balance.token = "Error getting balance"
+    else if (!isConnected) balance.token = "No Wallet Connected"
+    else {
+        console.log(data);
+        balance.token = `${data?.formatted} ${data?.symbol}`
+        tokenClass = styles.token_points;
+    }
 
     return (
         <HeaderSection className={styles.balance_subsection} header="My Balance" 
@@ -396,11 +422,12 @@ function BalanceSection({ balance }: { balance: typeof defaultBalance }) {
             <div className={`${styles.points_container} ${styles.content_block} ${styles.block_dark}`}>
                 <IconTextWrapper className={styles.rp_title} src="/icons/gift.svg" alt="Reward Points Icon" text="Reward Points" />
                 <div className={styles.rp_points}>{isVisible ? balance.points : censor}</div>
-                <IconTextButton onClick={() => console.log("Clicked")} className={styles.points_add} src="/icons/plus.svg" alt="Add Points Icon" text="Add Points" />
+                <IconTextButton onClick={modalHandler(exchangeModal)} className={styles.points_add} src="/icons/plus.svg" alt="Add Points Icon" text="Add Points" />
+                <ExchangeModal state={exchangeModal} />
             </div>
             <div className={`${styles.token_container} ${styles.content_block} ${styles.block_light}`}>
                 <IconTextWrapper className={styles.token_title} src="/icons/token.svg" alt="Token Icon" text="Token" />
-                <div className={styles.token_points}>{isVisible ? balance.token : censor}</div>
+                <div className={tokenClass}>{isVisible ? balance.token : censor}</div>
             </div>        
         </HeaderSection>
     );
@@ -443,12 +470,30 @@ function ProfileSection({ profile }: { profile: Profile }) {
                 {/* <HeaderSection>div className={`${styles.profile_cog_container} ${styles.button} ${styles.profile_edit}`}><img src="/icons/gear.svg" alt="Edit Profile"/></div> */}
                 <IconTextButton onClick={() => console.log("Clicked")} className={`${styles.profile_edit} ${styles.profile_cog_container}`} src="/icons/gear.svg" alt="Edit Profile" text="" />
             </div>
-            <div className={`${styles.wallet_container} ${styles.content_block} ${styles.block_light}`}>
-                <IconTextWrapper className={styles.wallet_title} src="/icons/WalletConnect-Logo1.svg" alt="Wallet Connect Logo" text="Wallet" />
-                <div className={styles.wallet_status}>No Wallet Connected</div>
-                <IconTextButton onClick={() => console.log("Clicked")} className={styles.wallet_connect} src="/icons/link.svg" alt="Link Icon" text="Connect Wallet" />
-            </div>
+            <WalletContainer />
         </HeaderSection>
+    );
+}
+
+function WalletContainer({ }) {
+    const { open } = useWeb3Modal();
+    const { address, isConnected } = useAccount();
+    
+    return (
+        <div className={`${styles.wallet_container} ${styles.content_block} ${styles.block_light}`}>
+            <IconTextWrapper className={styles.wallet_title} src="/icons/WalletConnect-Logo1.svg" alt="Wallet Connect Logo" text="Wallet" />
+            {isConnected ? (
+                <>
+                    <div className={`${styles.wallet_status} ${styles.shrink_text}`}>{address}</div>
+                    <IconTextButton onClick={() => open({ view: 'Account'})} className={styles.wallet_connect} src="/icons/link.svg" alt="Link Icon" text="Open Account" />
+                </>
+            ) : (
+                <>
+                    <div className={styles.wallet_status}>No Wallet Connected</div>
+                    <IconTextButton onClick={open} className={styles.wallet_connect} src="/icons/link.svg" alt="Link Icon" text="Connect Wallet" />
+                </>
+            )}
+        </div>
     );
 }
 
@@ -502,24 +547,26 @@ function TransactionsSection({ transactions }: { transactions: Transaction[] }) 
             </div>
             <div className={styles.transactions_table_container}>
                 <table className={styles.transactions_table}>
-                    <tr className={styles.transactions_row_dark}>
-                        <th className={styles.transactions_date}>Date</th>
-                        <th className={styles.transactions_type}>Type</th>
-                        <th className={styles.transactions_items}>Items</th>
-                        <th className={styles.transactions_total}>Total</th>
-                        <th className={styles.transactions_balance}>Points Balance</th>
-                    </tr>
-                    {transactions2D[page]?.map((transaction, index) => {
-                        return (
-                            <tr className={index % 2 == 0 ? styles.transactions_row_light : styles.transactions_row_dark} key={index}>
-                                <td>{transaction.date}</td>
-                                <td>{transaction.type}</td>
-                                <td>{transaction.items}</td>
-                                <td className={transactionTotalColor(transaction.total)}>{transaction.total}</td>
-                                <td className={styles.transactions_balance}>{transaction.pointsBalance}</td>
-                            </tr>
-                        );
-                    })}
+                    <tbody>
+                      <tr className={styles.transactions_row_dark}>
+                          <th className={styles.transactions_date}>Date</th>
+                          <th className={styles.transactions_type}>Type</th>
+                          <th className={styles.transactions_items}>Items</th>
+                          <th className={styles.transactions_total}>Total</th>
+                          <th className={styles.transactions_balance}>Points Balance</th>
+                      </tr>
+                      {transactions2D[page]?.map((transaction, index) => {
+                          return (
+                              <tr className={index % 2 == 0 ? styles.transactions_row_light : styles.transactions_row_dark} key={index}>
+                                  <td>{transaction.date}</td>
+                                  <td>{transaction.type}</td>
+                                  <td>{transaction.items}</td>
+                                  <td className={transactionTotalColor(transaction.total)}>{transaction.total}</td>
+                                  <td className={styles.transactions_balance}>{transaction.pointsBalance}</td>
+                              </tr>
+                          );
+                      })}
+                    </tbody>
                 </table>
             </div>
         </HeaderSection>

@@ -146,7 +146,7 @@ const Label: React.FC<
 const BigButton = wrapButton(styles.big_button);
 const SmallButton = wrapButton(styles.small_button);
 const SideButton: React.FC<ButtonProps & {
-	color?: "main" | "gray" | "green" | "blue" | "red";
+	color?: "main" | "gray" | "green" | "blue" | "red" | "yellow";
 	side?: "left" | "right";
 }> = ({ color, children, ...props }) => {
 	let className = (props.className? props.className + " " : '');;
@@ -155,6 +155,7 @@ const SideButton: React.FC<ButtonProps & {
 	else if (color === "green") className = styles.button_green;
 	else if (color === "blue") className = styles.button_blue;
 	else if (color === "red") className = styles.button_red;
+	else if (color === "yellow") className = styles.button_yellow; 
 	if (props.side === "left") className += " " + styles.button_left;
 	else if (props.side === "right") className += " " + styles.button_right;
 	if (props.className) className += " " + props.className;

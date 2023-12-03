@@ -87,6 +87,9 @@
     margin-top: 0.5rem;
     margin-bottom: 0.5rem;
 }
+.token_points.shrink_text {
+    font-size: 2.5rem;
+}
 
 .block_light {
     border-color: #B7B7B7;
@@ -156,6 +159,9 @@
     padding-top: 0.5rem;
     padding-bottom: 1.3rem;
 }
+.wallet_status.shrink_text {
+    font-size: 1.1rem;
+}
 
 .button.wallet_connect {
     border-color: #2463C1;
@@ -188,15 +194,15 @@
     border-collapse: collapse;
 }
 
-.transactions_table > tr > th {
+.transactions_table > tbody > tr > th {
     text-align: left;
     background-color: #222222;
     font-size: 1.3rem;
     line-height: 2.1rem;
 }
 
-.transactions_table > tr > th,
-.transactions_table > tr > td {
+.transactions_table > tbody > tr > th,
+.transactions_table > tbody > tr > td {
     padding: 0.4rem 2rem;
 }
 

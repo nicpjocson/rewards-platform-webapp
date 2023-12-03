@@ -7,6 +7,9 @@ import React, { useState, useRef, useEffect } from "react";
 import { signOut, useSession } from "next-auth/react";
 import { User } from "@/lib/types/User";
 import { UserRole } from "@prisma/client";
+import dynamic from 'next/dynamic'
+import { useDisconnect } from 'wagmi';
+
 
 let defaultUser: any = {
     name: "BrOdin",
@@ -30,7 +33,7 @@ export default function Navbar() {
             </NavLink>
             {/* Everything below uses float: right, so reversed order */}
             <ProfileComponent user={user} />
-            <WalletConnectBox isConnected={Boolean(user?.walletConnected) || false} />
+            <WalletConnectBox user={user} />
             <NavLink href="/cart"><img src="/cart.svg" alt=""/></NavLink> {/* fix alt */}
             <NavLink href="/shops"><h3>Shop</h3></NavLink>
             <NavLink href="/wallet"><h3>Wallet</h3></NavLink>
@@ -56,33 +59,11 @@ const NavLink: React.FC<{
     );
 }
 
-function WalletConnectBox({ isConnected = false }) { //TODO: fix types
-    let connect_style = null;
-    let connect_text = null;
-    let connect_src = null;
+const WalletConnectBox = dynamic(
+    () => import('@/components/Navbar/WalletConnectBox'),
+    { ssr: false }
+)
 
-    if (isConnected) {
-        connect_style = styles.connected;
-        connect_text = "Connected";
-        connect_src = "/wallet_connected.svg"
-    } else {
-        connect_style = styles.not_connected;
-        connect_text = "Not Connected";
-        connect_src = "/wallet_notconnected.svg"
-    }
-
-    return (
-        <NavLink href="/wallet/connect" className={`${styles.navlink} ${styles.connect_container}`} enableHighlight={false}>
-            <div className={`${styles.connect} ${connect_style}`}>
-                {connect_text}
-                {/* TODO: there is a few pixels gap between the img and the border, fix 
-				also fix alt
-				*/}
-                <img className={styles.connect_icon} src={connect_src} alt=""/>
-            </div>
-        </NavLink>
-    );
-}
 
 const NavDropdown: React.FC<{
 	children: React.ReactNode,
@@ -134,6 +115,8 @@ const NavDropdown: React.FC<{
 }
 
 function ProfileComponent({ user }: { user: User | undefined }) {
+    const { disconnect } = useDisconnect();
+
     return (
         <div className={`${styles.navlink} ${styles.profile_container_outer}`}> 
             {user ? (
@@ -144,7 +127,10 @@ function ProfileComponent({ user }: { user: User | undefined }) {
                 }} options={[
                     {href: "/inventorypage", label: "Inventory"},
                     {href: "/profile/edit", label: "Edit Profile"},
-                    {href: "/", label: "Logout", onClick: signOut}
+                    {href: "/", label: "Logout", onClick: () => {
+                        signOut()
+                        disconnect()
+                    }}
                 ]}>
                     <img className={styles.profile_icon} src="/profile.svg" alt=""/> {/* fix alt */}
                     <div className={styles.profile_info}>
