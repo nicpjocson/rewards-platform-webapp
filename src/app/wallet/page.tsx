@@ -6,6 +6,8 @@ import { useSession } from 'next-auth/react';
 import { useEffect } from "react";
 import { useWeb3Modal } from '@web3modal/wagmi/react'
 import { useAccount, useBalance, useContractRead } from 'wagmi';
+import { modalHandler } from "@/components/Modal/BaseModal";
+import ExchangeModal from "./modals/ExchangeModal";
 
 const defaultBalance: {
     points: number,
@@ -382,7 +384,7 @@ function IconTextWrapper({ className="", src, alt, text="" }: IconProps) {
     );
 }
 
-function IconTextButton({ className="", src, alt, text, onClick }: IconProps & { onClick: () => void }) {
+function IconTextButton({ className="", src, alt, text, onClick }: IconProps & { onClick: (args: any) => void }) {
     return (
         <div onClick={onClick}>
             <IconTextWrapper className={`${className} ${styles.button}`} src={src} alt={alt} text={text} />
@@ -422,6 +424,8 @@ function BalanceSection({ balance }: { balance: typeof defaultBalance }) {
     const [isVisible, setVisible] = useState(false);
     const censor = "********";
 
+    const exchangeModal = useState(false);
+
     let tokenClass = `${styles.token_points} ${styles.shrink_text}`;
 
     if (isLoading) balance.token = "Fetching balance..."
@@ -441,7 +445,8 @@ function BalanceSection({ balance }: { balance: typeof defaultBalance }) {
             <div className={`${styles.points_container} ${styles.content_block} ${styles.block_dark}`}>
                 <IconTextWrapper className={styles.rp_title} src="/icons/gift.svg" alt="Reward Points Icon" text="Reward Points" />
                 <div className={styles.rp_points}>{isVisible ? balance.points : censor}</div>
-                <IconTextButton onClick={() => console.log("Clicked")} className={styles.points_add} src="/icons/plus.svg" alt="Add Points Icon" text="Add Points" />
+                <IconTextButton onClick={modalHandler(exchangeModal)} className={styles.points_add} src="/icons/plus.svg" alt="Add Points Icon" text="Add Points" />
+                <ExchangeModal state={exchangeModal} />
             </div>
             <div className={`${styles.token_container} ${styles.content_block} ${styles.block_light}`}>
                 <IconTextWrapper className={styles.token_title} src="/icons/token.svg" alt="Token Icon" text="Token" />
