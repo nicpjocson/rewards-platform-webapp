@@ -15,14 +15,15 @@ import { useState } from "react";
 const ExchangeModal: React.FC<BaseModalProps> = ({ 
     state 
 }) => {
-    const [points, setPoints] = useState('');
+    const tokenPerPoint = 4;
+    const [points, setPoints] = useState(0);
     const handleChangePoints = (e: any) => {
         // TODO: handle non-integer input
         setPoints(e.target.value);
     }
     const handleChangeToken = (e: any) => {
         // TODO: convert token to points
-        setPoints(e.target.value);
+        setPoints(e.target.value / tokenPerPoint);
     }
 
     const form = useForm();
@@ -30,7 +31,7 @@ const ExchangeModal: React.FC<BaseModalProps> = ({
     
     const close = () => {
         state[1](false);
-        setPoints('');
+        setPoints(0);
     }
     
 	const handleSubmit = form.handleSubmit((data) => {
@@ -52,7 +53,7 @@ const ExchangeModal: React.FC<BaseModalProps> = ({
                         <Image src="/icons/gift.svg" width={122} height={122} alt="Reward Points" />
                     </CardRow>
                     <div>
-                        <ExchangeInput id="token" title="YOU PAY" label="Token" labelClassName={styles.token} convertedValue={1000} value={points} onChange={handleChangeToken} />
+                        <ExchangeInput id="token" title="YOU PAY" label="Token" labelClassName={styles.token} convertedValue={1000} value={points * tokenPerPoint} onChange={handleChangeToken} />
                         <div className={styles.text_info}>Available: P{123456.78}</div>
                         <br />
                         <ExchangeInput id="points" title="YOU RECEIVE" label="Points" labelClassName={styles.points} convertedValue={950} value={points} onChange={handleChangePoints} />
