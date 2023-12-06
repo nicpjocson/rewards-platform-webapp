@@ -1,6 +1,6 @@
 import prisma from '@/lib/prisma/prisma';
 import { withAdmin } from '@/lib/session/withUser';
-import { mapAdminProduct, adminProductSelection } from '@/lib/types/AdminShop';
+import { mapProduct, adminProductSelection } from '@/lib/types/AdminShop';
 import { NextResponse } from 'next/server';
 import { validate } from './validate';
 
@@ -29,7 +29,7 @@ export const POST = withAdmin(async (req, {params:{name}}: Params) => {
 		},
 		...adminProductSelection
 	});
-	return NextResponse.json({ product: mapAdminProduct(product) }, { status: 201 });
+	return NextResponse.json({ product: mapProduct(product) }, { status: 201 });
   } catch (error) {
 	console.error(error);
 	return NextResponse.json({ error: 'Something went wrong' }, { status: 500 });

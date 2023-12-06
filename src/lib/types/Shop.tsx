@@ -4,6 +4,7 @@ import {
 	Code as _Code, 
 	ProductCategory 
 } from '@prisma/client';
+import { mapProduct } from './AdminShop';
 
 export const codeSelection = {
   select: {
@@ -20,17 +21,12 @@ export type Product = Pick<_Product, "name" | "shopName" | "price" | "tos" | "de
 	stock: number,
 	sales: number,
 }
-type DBProduct = {
+export type DBProduct = {
   product: Omit<Product, 'stock' | 'sales'> & {
 	_count: { purchasedCodes: number }
   }
   _count: { codes: number }
 }
-export const mapProduct = (product: DBProduct): Product => ({
-	...product.product,
-	stock: product._count.codes,
-	sales: product.product._count.purchasedCodes,
-})
 export const productSelection = {
   select: {
 	product: {
@@ -68,7 +64,7 @@ export const shopSelection = {
 export type Shop = Pick<_Shop, "name"> & {
 	products: Product[]
 }
-type DBShop = {
+export type DBShop = {
 	name: string,
 	products: DBProduct[]
 }

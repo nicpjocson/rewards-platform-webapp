@@ -49,6 +49,9 @@ export const DELETE = withAdmin(async (req: NextRequest, {params: { name: shopNa
 			shopName,
 			code: {
 				in: codes
+			},
+			NOT: {
+				isUsed: null
 			}
 		}
 	});

@@ -14,14 +14,12 @@ export default function SignupPage() {
 	const [ step, setStep ] = React.useState(0);
 
 	const handleSubmit = async (data: UserCardOutput & DetailsCardOutput) => {
-		const rest = data as any;
-		delete rest.confirmPassword;
 		const res = await fetch('/api/profile', {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json'
 			},
-			body: JSON.stringify(rest),
+			body: JSON.stringify({ ...data, confirmPassword: undefined }),
 		})
 		const json = await res.json();
 		if (res.ok) {

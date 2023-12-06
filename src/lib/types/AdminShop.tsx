@@ -1,4 +1,4 @@
-import { Code, Product, Shop } from "./Shop"
+import { Code, DBProduct, Product, Shop } from "./Shop"
 
 export const adminCodeSelection = {
   select: {
@@ -20,7 +20,7 @@ export type AdminCode = Code & {
 export type AdminProduct = Product & {
 	codes: AdminCode[]
 }
-type DBAdminProduct = {
+export type DBAdminProduct = {
 	product: Omit<Product, 'stock' | 'sales'> & {
 		_count: { purchasedCodes: number }
 	}
@@ -28,12 +28,25 @@ type DBAdminProduct = {
 	codes: AdminCode[]
 }
 
-export const mapAdminProduct = (product: DBAdminProduct): AdminProduct => ({
-	...product.product,
-	codes: product.codes,
-	stock: product._count.codes,
-	sales: product.product._count.purchasedCodes,
-})
+type MapProductRet<T> = T extends DBAdminProduct ? AdminProduct : Product;
+
+export const mapProduct = <T extends DBProduct | DBAdminProduct>(product: T): MapProductRet<T> => {
+  if ('codes' in product) {
+    return {
+		...product.product,
+		codes: product.codes,
+		stock: product._count.codes,
+		sales: product.product._count.purchasedCodes,
+	} as AdminProduct as MapProductRet<T>;
+  } else {
+    return {
+      ...product.product,
+      stock: product._count.codes,
+      sales: product.product._count.purchasedCodes,
+    } as Product as MapProductRet<T>;
+  }
+};
+
 
 export const adminProductSelection = {
   select: {
@@ -74,11 +87,11 @@ export const adminShopSelection = {
 export type AdminShop = Omit<Shop, 'products'> & {
 	products: AdminProduct[]
 }
-type AdminDBShop = {
+export type AdminDBShop = {
 	name: string,
 	products: DBAdminProduct[]
 }
 export const mapAdminShop = (shop: AdminDBShop): AdminShop => ({
 	name: shop.name,
-	products: shop.products?.map(mapAdminProduct)
+	products: shop.products?.map(mapProduct)
 })
